@@ -59,14 +59,14 @@ services:
         sync: false
 
   # 4. FRONTEND (React/Vite)
-  - type: static
+  - type: site
     name: fintrack-frontend
     repo: https://github.com/datle04/fintrack-frontend # <--- SỬA LINK
     branch: main
     env: static
     region: singapore
     buildCommand: npm run build
-    staticPublishPath: ./dist
+    publishPath: ./dist
     # Cấu hình Rewrite cho React Router
     routes:
       - type: rewrite
