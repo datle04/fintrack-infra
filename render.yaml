@@ -53,7 +53,7 @@ services:
     plan: free
     region: singapore
     # Lệnh build bao gồm cả copy file css
-    buildCommand: npm install && npm run build && cp src/utils/tailwind-report.css dist/utils/
+    buildCommand: npm install --include=dev && npm run build && cp src/utils/tailwind-report.css dist/utils/
     startCommand: npm start
     envVars:
       - key: NODE_VERSION # <--- THÊM DÒNG NÀY
