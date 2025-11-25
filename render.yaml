@@ -1,0 +1,80 @@
+services:
+  # 1. REDIS
+  - type: redis
+    name: fintrack-redis
+    region: singapore
+    plan: free
+    ipAllowList: [] # Cho phép tất cả kết nối nội bộ
+
+  # 2. CHATBOT (Node/TS)
+  - type: web
+    name: chatbot-service
+    repo: https://github.com/datle04/chatbot-service # <--- SỬA LINK
+    branch: main
+    env: node
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: fintrack-redis
+          type: redis
+          property: connectionString
+      # Các biến bí mật (Render sẽ hỏi bạn nhập khi tạo)
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # 3. BACKEND (Node/TS + Puppeteer)
+  - type: web
+    name: fintrack-backend
+    repo: https://github.com/datle04/fintrack # <--- SỬA LINK
+    branch: main
+    env: node
+    region: singapore
+    # Lệnh build bao gồm cả việc copy file CSS lỗi lúc nãy (nếu bạn chưa sửa trong package.json)
+    buildCommand: npm install && npm run build && cp src/utils/tailwind-report.css dist/utils/
+    startCommand: npm start
+    envVars:
+      - key: PUPPETEER_CACHE_DIR
+        value: /opt/render/project/src/.cache
+      - key: NODE_ENV
+        value: production
+      - key: REDIS_URL
+        fromService:
+          name: fintrack-redis
+          type: redis
+          property: connectionString
+      - key: CHATBOT_URL
+        fromService:
+          name: chatbot-service
+          type: web
+          property: url
+      # Các biến bí mật (Sẽ nhập tay trên Dashboard)
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+
+  # 4. FRONTEND (React/Vite)
+  - type: static
+    name: fintrack-frontend
+    repo: https://github.com/datle04/fintrack-frontend # <--- SỬA LINK
+    branch: main
+    env: static
+    region: singapore
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    # Cấu hình Rewrite cho React Router
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: fintrack-backend
+          type: web
+          property: url
