@@ -17,6 +17,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
+      - key: NODE_VERSION # <--- THÊM DÒNG NÀY
+        value: 22.11.0
       # 1. Môi trường Production
       - key: NODE_ENV
         value: production
@@ -54,6 +56,8 @@ services:
     buildCommand: npm install && npm run build && cp src/utils/tailwind-report.css dist/utils/
     startCommand: npm start
     envVars:
+      - key: NODE_VERSION # <--- THÊM DÒNG NÀY
+        value: 22.11.0
       # --- 1. CẤU HÌNH HỆ THỐNG CỐ ĐỊNH ---
       - key: NODE_ENV
         value: production
@@ -121,6 +125,8 @@ services:
         source: /*
         destination: /index.html
     envVars:
+      - key: NODE_VERSION # <--- THÊM DÒNG NÀY
+        value: 22.11.0
       # Vì Frontend chạy ở Client nên CẦN Public URL.
       # Blueprint chưa hỗ trợ lấy Public URL tự động, nên phải nhập tay.
 
