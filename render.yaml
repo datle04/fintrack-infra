@@ -69,7 +69,6 @@ services:
     repo: https://github.com/datle04/fintrack-frontend # <--- SỬA LINK
     branch: main
     env: static
-    plan: free
     # SỬA LỖI 2: Đã xóa dòng "region: singapore"
     buildCommand: npm run build
     staticPublishPath: ./dist
