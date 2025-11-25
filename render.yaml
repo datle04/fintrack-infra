@@ -63,7 +63,6 @@ services:
     name: fintrack-frontend
     repo: https://github.com/datle04/fintrack-frontend # <--- SỬA LINK
     branch: main
-    env: static
     region: singapore
     buildCommand: npm run build
     publishPath: ./dist
