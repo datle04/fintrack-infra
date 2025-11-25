@@ -12,6 +12,7 @@ services:
     repo: https://github.com/datle04/chatbot-service # <--- SỬA LINK
     branch: main
     env: node
+    plan: free
     region: singapore
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -30,6 +31,7 @@ services:
     repo: https://github.com/datle04/fintrack # <--- SỬA LINK
     branch: main
     env: node
+    plan: free
     region: singapore
     # Lệnh build bao gồm cả copy file css
     buildCommand: npm install && npm run build && cp src/utils/tailwind-report.css dist/utils/
@@ -67,6 +69,7 @@ services:
     repo: https://github.com/datle04/fintrack-frontend # <--- SỬA LINK
     branch: main
     env: static
+    plan: free
     # SỬA LỖI 2: Đã xóa dòng "region: singapore"
     buildCommand: npm run build
     staticPublishPath: ./dist
