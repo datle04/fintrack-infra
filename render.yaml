@@ -17,12 +17,29 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
+      # 1. Môi trường Production
+      - key: NODE_ENV
+        value: production
+
+      # 2. Redis (Lấy tự động từ service fintrack-redis)
+      # Nó sẽ thay thế 'redis://redis_server:6379' thành link thật của Render
       - key: REDIS_URL
         fromService:
           name: fintrack-redis
           type: redis
           property: connectionString
-      - key: OPENAI_API_KEY
+
+      # 3. Các biến bí mật (Nhập tay trên Dashboard)
+      - key: JWT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_API_URL
+        sync: false
+
+      # 4. Link Backend (Nhập tay vì cần đuôi /api)
+      # Sau khi backend chạy, bạn nhập: https://fintrack-backend.onrender.com/api
+      - key: FINTRACK_API_URL
         sync: false
 
   # 3. BACKEND
@@ -37,30 +54,57 @@ services:
     buildCommand: npm install && npm run build && cp src/utils/tailwind-report.css dist/utils/
     startCommand: npm start
     envVars:
-      - key: PUPPETEER_CACHE_DIR
-        value: /opt/render/project/src/.cache
+      # --- 1. CẤU HÌNH HỆ THỐNG CỐ ĐỊNH ---
       - key: NODE_ENV
         value: production
+      - key: PUPPETEER_CACHE_DIR # Cần cho thư viện Puppeteer của bạn
+        value: /opt/render/project/src/.cache
+      - key: ACCESS_TOKEN_EXPIRY
+        value: 15m
+      - key: REFRESH_TOKEN_EXPIRY
+        value: 7d
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: CLOUDINARY_UPLOAD_PRESET
+        value: FinTrack
+      - key: GEMINI_API_URL
+        value: https://api.gemini.example/v1
+
+      # --- 2. KẾT NỐI REDIS (Tự động) ---
       - key: REDIS_URL
         fromService:
           name: fintrack-redis
           type: redis
           property: connectionString
 
-      # SỬA LỖI 1: Dùng hostport cho kết nối nội bộ
-      # Giá trị nhận được sẽ là dạng: "chatbot-service:10000"
-      # Code của bạn nên xử lý: const url = `http://${process.env.CHATBOT_URL}`;
-      - key: CHATBOT_URL
-        fromService:
-          name: chatbot-service
-          type: web
-          property: hostport
-
-      - key: MONGO_URI
+      # --- 3. CÁC BIẾN BÍ MẬT (Nhập tay trên Dashboard) ---
+      - key: MONGODB_URI
+        sync: false
+      - key: REFRESH_TOKEN_SECRET
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: CLOUDINARY_URL
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: OPEN_EXCHANGE_RATES_APP_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+
+      # --- 4. FRONTEND URL (QUAN TRỌNG) ---
+      # Biến này để xử lý CORS và link verify email.
+      # Vì Frontend chưa có link, bạn phải để sync: false và cập nhật sau.
+      - key: FRONTEND_URL
         sync: false
 
   # 4. FRONTEND
@@ -77,6 +121,11 @@ services:
         source: /*
         destination: /index.html
     envVars:
-      # SỬA LỖI 3: Chuyển sang nhập tay (sync: false) vì Blueprint không cho lấy Public URL
-      - key: VITE_API_URL
+      # Vì Frontend chạy ở Client nên CẦN Public URL.
+      # Blueprint chưa hỗ trợ lấy Public URL tự động, nên phải nhập tay.
+
+      - key: VITE_BACK_END_URL
+        sync: false
+
+      - key: VITE_CHATBOT_API_URL
         sync: false
